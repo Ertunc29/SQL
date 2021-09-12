@@ -1,0 +1,175 @@
+--*======================= CONSTRAINTS - KISITLAMALAR ======================================
+--   NOT NULL - Bir Sütunun  NULL içermemesini garanti eder.
+--   UNIQUE - Bir sütundaki tüm de?erlerin BENZERS?Z olmas?n? garanti eder.
+--   PRIMARY KEY - Bir sütünün NULL içermemesini ve sütundaki verilerin
+--                 BENZERS?Z olmas?n? garanti eder.(NOT NULL ve UNIQUE birle?imi gibi)
+--    FOREIGN KEY - Ba?ka bir tablodaki Primary Key’i referans göstermek için kullan?l?r.
+--                 Böylelikle, tablolar aras?nda ili?ki kurulmu? olur.
+--   CHECK - Bir sutundaki tüm verilerin belirlenen özel bir ?art? sa?lamas?n? garanti eder.
+--   soldan tablo silerken tablonun kapal? olmas? laz?m---
+--ORNEK1-NOT NULL
+--ogrenciler tablosu olusturalim ve id field ini bos birakilamaz yapalim
+
+CREATE TABLE ogrenciler (
+id char(4)not null,
+isim varchar(50),
+not_ort number(4),---98,55
+kayit_tarihi date
+);
+
+
+INSERT INTO ogrenciler VALUES('2002','ayse',null,null);
+INSERT INTO ogrenciler(id,isim) VALUES('2003','fatma');
+INSERT INTO ogrenciler VALUES('2001','hasan',75.25,'14-may-2020');
+INSERT INTO ogrenciler VALUES(null,'osman',45.25,'5-may-2020'); -- ORA-01400: cannot insert NULL into ("HR"."OGRENCILER"."ID")
+
+select*from ogrenciler;
+
+--ORNEK2 UNIQUE
+--tedarikciler olusturalim id unique olsun
+
+create table tedarikciler(
+id char(4)UNIQUE,
+isim varchar(50),
+adre varchar(100),
+tarih date
+
+);
+
+INSERT INTO tedarikciler VALUES('1234','AYSE','TS CAD. YOMRA','10-JAN-20');
+INSERT INTO tedarikciler VALUES('1234','FATMA','inan CAD. YOMRA','10-JAN-20'); --ORA-00001: unique constraint
+INSERT INTO tedarikciler VALUES(null,'sila','akat CAD. YOMRA','10-NOV-20');
+INSERT INTO tedarikciler VALUES(null,'reco','kala CAD. YOMRA','10-dec-20');
+drop table tedarikciler;
+  --uniquw constraint tekrara izin vermez ancak istediginiz kadar null girebilirsiniz
+  
+  select * from tedarikciler;
+  
+  
+  --ornek3 primary key
+  
+  create table personel(
+  id char(5) PRIMARY KEY,
+  isim varchar(50) UNIQUE,
+  maas number(5) NOT NULL,
+  ise_baslama date
+  );
+  
+  
+    INSERT INTO personel VALUES('10001', 'Ahmet Aslan',7000, '13-may-2018');
+    INSERT INTO personel VALUES( '10001', 'Mehmet Y?lmaz' ,12000, '14-may-18');--unique constraint 
+    INSERT INTO personel VALUES('10003', '', 5000, '14-may-18');
+    INSERT INTO personel VALUES('10004', 'Veli Han', 5000, '14-may-18');
+    INSERT INTO personel VALUES('10005', 'Ahmet Aslan', 5000, '14-may-18');--unique constraint
+    INSERT INTO personel VALUES('NULL', 'Canan Ya?', NULL, '12-may-19');-- null olmaz cannot insert NULL into
+    
+    select*from personel;
+    
+    
+    -------   -- ogrenciler3 tablosu olusturalim ve ogrenci_id 'yi PRIMARY KEY yapalim
+    CREATE TABLE ogrenciler3
+(
+ogrenci_id char(4) PRIMARY KEY,
+Isim_soyisim varchar2(50),
+not_ort number(5,2), --100,00
+kayit_tarihi date -- 14-01-2021
+);
+
+INSERT INTO ogrenciler3 VALUES ('1234', 'hasan yaman',75.70,'14-JAN-2020');
+INSERT INTO ogrenciler3 VALUES (null, 'veli yaman',85.70,'14-01-2020'); -- id null olamaz
+INSERT INTO ogrenciler3 VALUES ('1234', 'Ali Can',55.70,'14-06-2020'); -- id benzersiz olmal?, daha önceverilen id kullan?lamaz
+INSERT INTO ogrenciler3 (isim_soyisim) VALUES ( 'Veli Cem'); -- id vermeden ba?ka ?eyler vermeye geçemezsin, default null atar, buda primary ye uymaz
+INSERT INTO ogrenciler3 (ogrenci_id) VALUES ( '5687');
+
+SELECT *FROM ogrenciler3;
+  
+
+
+
+--PRIMARY KEY ALTERNATIF YONTEM
+--bu yontemde kisitlamaya istedigimiz ismi atayabiliriz
+
+create table calisanlar (
+id char(5),
+isim varchar(50) UNIQUE,
+maas number(5) NOT NULL,
+constraint id_primary PRIMARY KEY(id)
+);
+
+     INSERT INTO calisanlar VALUES('10001', 'Ahmet Aslan',7000);
+    INSERT INTO calisanlar VALUES( '10002', 'Mehmet Y?lmaz' ,12000);
+    INSERT INTO calisanlar VALUES('10003', 'CAN', 5000);
+    select*from calisanlar;
+    
+    -- bu tabloya data eklenirken constraitlere dikkar edilmeldiir
+    
+    --ornek4 foreign key
+    
+    create table adresler(
+    adres_id char(5),
+    sokak varchar(30),
+    cadde varchar(30),
+    sehir varchar(15),
+    CONSTRAINT id_foreign FOREIGN KEY(adres_id) REFERENCES calisanlar(id)
+    );
+    
+    drop table adresler;
+    INSERT INTO adresler VALUES('10001','Mutlu Sok', '40.Cad.','IST');
+    INSERT INTO adresler VALUES('10001','Can Sok', '50.Cad.','Ankara');
+    INSERT INTO adresler VALUES('10002','A?a Sok', '30.Cad.','Antep');
+    INSERT INTO adresler VALUES('','A?a Sok', '30.Cad.','Antep');
+    INSERT INTO adresler VALUES('','A?a Sok', '30.Cad.','Antep');
+   -- INSERT INTO adresler VALUES('10004','Gel Sok', '60.Cad.','Van');--parentta olmayan id'li veri giremeyiz
+   
+   select*from calisanlar; --parent
+   select*from adresler;  --child
+   
+   drop table calisanlar; -- child silmeden parent silinmez
+   drop table adresler;
+   
+   --primary key sadece bir kez yapabiliriz
+   
+   --ogrenciler5 tablosunu olusturun ve id isim hanelerinin birlesimini primary key yapin
+   
+   create table ogrenciler5(
+   id char(5),
+   isim varchar(20),
+   not_ort number(5,2),
+   kayit_tarihi date,
+   CONSTRAINT ogrenciler_primary PRIMARY KEY(id,isim)--10,ayse,5
+                                                     --10,ayse,6
+                                                     --10,ayse
+                                                     --10,fatma+
+   );
+   
+INSERT INTO ogrenciler5 VALUES (null,'Veli Cem',90.6,'15-JUN-2019'); -- ORA-01400: cannot insert NULL into ("HR"."OGRENCILER5"."ID")
+INSERT INTO ogrenciler5 VALUES (1234,null,90.6,'15-JUN-2019'); -- ORA-01400: cannot insert NULL into ("HR"."OGRENCILER5"."ISIM")
+INSERT INTO ogrenciler5 VALUES (1234,'Ali Can',90.6,'15-JUN-2019'); -- PK= 1234Ali Can
+INSERT INTO ogrenciler5 VALUES (1234,'Veli Cem',90.6,'15-JUN-2019'); -- PK=1234Veli Cem
+INSERT INTO ogrenciler5 VALUES (1234,'Oli Can',90.6,'15-JUN-2019');
+
+SELECT*FROM ogrenciler5;
+
+--“tedarikciler4” isimli bir Tablo olusturun. Icinde “tedarikci_id”, “tedarikci_isim”, “iletisim_isim” field’lari olsun.
+--“tedarikci_id” ve “tedarikci_isim” fieldlarini birlestirerek Primary Key olusturun.
+--“urunler2” isminde baska bir tablo olusturun.Icinde “tedarikci_id” ve “urun_id” fieldlari olsun.
+--“tedarikci_id” ve “urun_id” fieldlarini birlestirerek Foreign Key olusturun
+
+create table tedarikciler4(
+tedarikci_id char(4),
+tedarikci_isim varchar(20),
+iletisim_isim varchar(20),
+CONSTRAINT tedarikciler4_pk PRIMARY KEY(tedarikci_id,tedarikci_isim)--var + varchar
+
+);
+
+create table urunler2(
+tedarikci_id char(4),
+urun_id varchar(5),
+CONSTRAINT urunler2_fk FOREIGN KEY(tedarikci_id,urun_id)REFERENCES tedarikciler4--var + varchar
+);
+
+
+
+
+

@@ -1,0 +1,14 @@
+CREATE TABLE deneme(
+id CHAR(4),
+name VARCHAR(20),
+age NUMBER
+);
+
+INSERT INTO deneme VALUES('1001','SANIM',29);
+INSERT INTO deneme VALUES('1002','AYSE',28);
+INSERT INTO deneme VALUES('1003','ZEYNEP',27);
+INSERT INTO deneme VALUES('1004','FATMA',26);
+
+DROP TABLE deneme;
+
+select*from deneme;
