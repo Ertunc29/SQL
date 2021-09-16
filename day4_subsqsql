@@ -1,0 +1,137 @@
+--Subquery----
+--Sorgu icinde calisan sorguya subquery (alt sorgu) denir
+
+create table personel (
+id number(9),
+isim varchar2(50),
+sehir varchar2(50),
+maas number(20),
+sirket varchar2(20)
+);
+
+INSERT INTO personel VALUES (123456789,'Ali Seker','Istanbul',2500,'Honda');
+INSERT INTO personel VALUES (234567890,'Ayse Gul','Istanbul',1500,'Toyota');
+INSERT INTO personel VALUES (345678901,'Veli Yilmaz','Ankara',3000,'Honda');
+INSERT INTO personel VALUES (456789012,'Veli Yilmaz','Izmir',1000,'Ford');
+INSERT INTO personel VALUES (567890123,'Veli Yilmaz','Ankara',7000,'Hyundai');
+INSERT INTO personel VALUES (678901234,'Ayse Gul','Ankara',1500,'Ford');
+INSERT INTO personel VALUES (123456710,'Fatma Yasa','Bursa',2500,'Honda');
+
+create table sirketler(
+sirket_id number(9),
+sirket_adi varchar2(20),
+personel_sayisi number(20)
+);
+
+INSERT INTO sirketler VALUES (100,'Honda',12000);
+INSERT INTO sirketler VALUES (101,'Ford',18000);
+INSERT INTO sirketler VALUES (102,'Hyundai',10000);
+INSERT INTO sirketler VALUES (103,'Toyota',21000);
+INSERT INTO sirketler VALUES (104,'Mazda',17000);
+
+--orn1: personel saytisi 15000 de n cok olan sirketlerin isimlerini (alt sorgu sirketlerin isimlerini) 
+--ve bu sirkette calisan peronelin isimlerini ve maaslarini (asil sorgu personel) listeleyin
+
+select isim, maas, sirket from personel 
+where sirket in(select sirket_adi from sirketler
+             where personel_sayisi>15000);
+             
+--orn2: sirket id'si 101 den buyuk olanlarin isim,maas ve sehir isimlerini lsitelyinz
+
+
+select isim, maas, sirket from personel 
+where sirket in(select sirket_adi from sirketler
+             where sirket_id>101); 
+             
+--orn3: Ankara'da personeli olan sirketlerin sirket id'lerini ve personel sayisini listeleyin
+
+select sirket_id,personel_sayisi from sirketler
+where sirket_adi in(select sirket from personel
+where sehir='Ankara');
+
+/*=================AGGREATE METOT KULLANIMI=========================================================
+Agrreate Metotlari (SUM,COUNT,MIN,MAX,AVG) Subsguery iicnde kullanilabilit.
+Ancak, sorgu tek bir deger donduuryor olmalidir
+
+--*** SELECT den sonra SUBSQUERY yazarsak sorgu sonucunun sadece 1 deger getireceginden emin olmaliyiz
+
+--bir tablodan tek deger getirebilmek icin ortalama AVG, toplam SUM, adet COUNT, MIN, MAX gibi
+--fonksiyonlar kullanilir ve bu fonksiyonla AGGREATE FONSKIYONLAR denir
+====================================================================================================*/
+
+--orn4: her sirketin ismini, personel sayisini ve o sirkete ait personelin 
+--toplam maasini listeleyen bir sorgu yaziniz
+
+select sirket_adi, personel_sayisi, (select sum(maas) from personel
+where sirketler.sirket_adi=personel.sirket) AS toplam_Maas from sirketler;
+
+--isim vermek isin AS keywordu kullanilir
+
+--orn4: her sirketin ismini, personel sayisini ve o sirkete ait ortlama maasini listeleyen bir sorgu yaziniz
+
+select sirket_adi, personel_sayisi, (select round (AVG(maas)) from personel 
+where sirketler.sirket_adi=sirket) AS ort_maas from sirketler;
+
+--orn5: her sirketin ismini, personel sayisini ve o sirkete ait personelin max ve min maasini listeleyen bir sorgu yaziniz
+
+select sirket_adi, personel_sayisi, (select max(maas) from personel 
+where sirketler.sirket_adi=sirket) AS max_maas,
+(select min(maas) from personel 
+where sirketler.sirket_adi=sirket) AS min_maas from sirketler;
+
+--orn6: her sirketin id'sini, ismini ve toplam kac sehirde bulundugunu listeleyen bir sorgu yaziniz
+
+select sirket_id, sirket_adi, (select count(sehir) from personel
+where sirket=sirket_adi)as sehir_sayisi from sirketler;
+
+--==========================DELETE============================================
+-- DELETE FROM tablo adi; tablonun tum icerigini siler
+--bu komut bir DML komutudur. Dolaysiyla devaminda WHERE gibi cumlecikler kullanilabilir
+
+--DELETE FROM ogrenciler
+--WHERE ID=123; istenilen satiri silmek icin kullanilir. 
+-- secerek silmek icin WHERE keyword'u kullanilir.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
